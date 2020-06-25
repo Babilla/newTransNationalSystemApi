@@ -32,10 +32,7 @@ http://www.mulesoft.org/schema/mule/min-log http://www.mulesoft.org/schema/mule/
                 <set-variable value="#[406]" doc:name="Set the HTTP Status - 406" doc:id="8b519c33-7027-4ddc-a16c-76dc5a1ec2de" variableName="httpStatus"/>
       <flow-ref doc:name="global-error-response-sub-flow" doc:id="5f363caf-f397-4ee8-af5a-bc0a05b77e53" name="global-error-response-sub-flow"/>
 	            </on-error-continue>
-	             <on-error-continue type="WSC:SOAP_FAULT">  
-             <set-variable value="#[504]" doc:name="Set the HTTP Status - 405" doc:id="8b519c33-7027-4ddc-a16c-76dc5a1ec2de" variableName="httpStatus"/>
-      <flow-ref doc:name="global-error-response-sub-flow" doc:id="5f363caf-f397-4ee8-af5a-bc0a05b77e53" name="global-error-response-sub-flow"/>
-	            </on-error-continue>
+	           
 	            <on-error-continue type="WSC:CANNOT_DISPATCH">
              <set-variable value="#[410]" doc:name="Set the HTTP Status - 405" doc:id="8b519c33-7027-4ddc-a16c-76dc5a1ec2de" variableName="httpStatus"/>
       <flow-ref doc:name="global-error-response-sub-flow" doc:id="5f363caf-f397-4ee8-af5a-bc0a05b77e53" name="global-error-response-sub-flow"/>
@@ -115,6 +112,10 @@ http://www.mulesoft.org/schema/mule/min-log http://www.mulesoft.org/schema/mule/
 			<set-variable value="#[401]" doc:name="Set the HTTP Status - 401" doc:id="1566ca24-83a0-4ae3-b774-001b16080f94" variableName="httpStatus" />
       			<flow-ref doc:name="global-error-response-sub-flow" doc:id="8af8b8e9-5e78-45cd-b3ee-942cac7c6fe4" name="global-error-response-sub-flow"/>
 		</on-error-continue>
+		  <on-error-continue type="WSC:SOAP_FAULT">  
+             <set-variable value="#[504]" doc:name="Set the HTTP Status - 405" doc:id="8b519c33-7027-4ddc-a16c-76dc5a1ec2de" variableName="httpStatus"/>
+      <flow-ref doc:name="global-error-response-sub-flow" doc:id="5f363caf-f397-4ee8-af5a-bc0a05b77e53" name="global-error-response-sub-flow"/>
+	            </on-error-continue>
 		<on-error-continue type="HTTP:TIMEOUT" enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="9f029de7-5187-46dc-af01-7dbd53778a42" >
 			<set-variable value="#[504]" doc:name="Set the HTTP Status - 504" doc:id="16eaef7b-bd42-4dad-a978-40dcab7315a5" variableName="httpStatus" />
       			<flow-ref doc:name="global-error-response-sub-flow" doc:id="22517cf7-b863-41fd-b1e6-1ff4b438b329" name="global-error-response-sub-flow"/>
