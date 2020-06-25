@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns:min-log="http://www.mulesoft.org/schema/mule/min-log" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/min-log http://www.mulesoft.org/schema/mule/min-log/current/mule-min-log.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	<http:listener-config name="trans-national-sys-api-httpListenerConfig">
+        <http:listener-connection host="${secure::http.connection.host}" port="${secure::http.connection.port}" />
+    </http:listener-config>
+     <wsc:config name="Web_Service_Consumer_Config" doc:name="Web Service Consumer Config" doc:id="1ad0efd5-1441-4e52-b00c-016242c7a458" >
+		<wsc:connection wsdlLocation="${secure::webService.connection.wsdlLocation}" service="${secure::webService.connection.service}" port="${secure::webService.connection.port}" address="${secure::webService.connection.address}" >
+			<wsc:custom-transport-configuration >
+				<wsc:default-http-transport-configuration timeout="50000" />
+			</wsc:custom-transport-configuration>
+			<wsc:web-service-security actor="http://schemas.xmlsoap.org/soap/actor/next" />
+		</wsc:connection>
+	</wsc:config>
+    <apikit:config name="trans-national-sys-api-config" api="trans-national-sys-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="a77beb2e-0121-4a95-bc57-20f108d19e8c" file="dev.yaml" key="victory" >
+		<secure-properties:encrypt algorithm="Blowfish" mode="ECB" />
+	</secure-properties:config>
+	<configuration doc:name="Configuration" doc:id="93c94741-0482-4c48-9ff2-cf25d0e46a16" defaultErrorHandler-ref="globalError_Handler" />
+	<sub-flow name="audit-log-subflow" doc:id="b4f27e29-d250-49cd-bca5-bf862201acce" >
+		<min-log:new doc:name="initiate transaction properties" doc:id="9b870d12-f921-4759-a70e-9923242466d8" headers="#[attributes.headers]" target="loggingProperties"/>
+		<min-log:put doc:name="logMessageType" doc:id="bfa837d1-d9d5-449a-a6a3-66235f0e42c3" key="logMessageType" value="INTERMEDIATE" transactionProperties="#[vars.loggingProperties]" target="loggingProperties"/>
+		<min-log:put doc:name="set application name" doc:id="2a64fecf-19d4-41a2-8dd6-e7567055c352" key="applicationName" value="#[app.name]" transactionProperties="#[vars.loggingProperties]" target="loggingProperties"/>
+		<min-log:put doc:name="insert resource" doc:id="e2b94e30-697a-439f-a574-24385c525833" key="inboundUri" value="#[attributes.relativePath]" transactionProperties="#[vars.loggingProperties]" target="loggingProperties"/>
+		<min-log:put doc:name="Insert Method" doc:id="9976982b-a014-49f3-822f-4f5f59e53143" key="httpMethod" value="#[attributes.method]" transactionProperties="#[vars.loggingProperties]" target="loggingProperties"/>
+		<min-log:put doc:name="insert scheme" doc:id="de3dc470-7b53-45ac-86c2-c7ea9da47b19" key="scheme" value="#[attributes.scheme]" transactionProperties="#[vars.loggingProperties]" target="loggingProperties"/>
+	</sub-flow>
+	</mule>

@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="soap-input" format="xml">
+      <types:example format="xml" element="{http://www.example.org/Bookings/}getRoutes" location="soap-input.xml"/>
+    </types:type>
+    <types:type name="soap-output" format="json">
+      <types:shape format="weave" example="api/examples/getRoutesExample.raml"><![CDATA[%dw 2.0
+
+type soap_output = Array<{|  originLocation: {| locationCode: String |},   destinationLocation: {| locationCode: String |}|}> {"example": "[{\\\"originLocation\\\":{\\\"locationCode\\\":\\\"BEN-SG\\\"},\\\"destinationLocation\\\":{\\\"locationCode\\\":\\\"KLG-MY\\\"}}]"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#340738a2-4412-405c-b097-15cb290e2e7c">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="soap-input"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="soap-output"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

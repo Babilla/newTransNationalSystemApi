@@ -1,0 +1,37 @@
+#%RAML 1.0
+baseUri: https://anypoint.mulesoft.com/mocking/api/v1/links/8526e54b-3681-4b4b-abad-7f47b9a3e14d/ # 
+title: trans-national-sys-api
+version: 1.0.0
+protocols: HTTP
+mediaType: application/json
+description: TransNational Routes and Schedule System API to fetch Routes and Schedules Detail
+
+types:
+  routes: !include dataType/routes-dataType.raml
+uses:
+  lib: exchange_modules/48d79b74-3f50-4882-bc79-83f4d312d3ce/mule-spec-lib/1.0.0/mule-spec-lib.raml
+
+securedBy:
+  - lib.basicAuth
+
+/{transportType}/{transportCompany}/routes:
+  uriParameters:
+    transportType:
+      description: unique transportType
+      type: string
+      example: "sea"
+      required: true
+    transportCompany:
+      description: unique transportCompany
+      type: string
+      required: true  
+    
+  get:
+    is: [lib.trackable,lib.errorCode ]
+    description: To retrieve route list from FirstCoach.
+    responses:
+      200:
+        body:
+          application/json:
+            type: routes[]
+            example: !include examples/getRoutesExample.raml

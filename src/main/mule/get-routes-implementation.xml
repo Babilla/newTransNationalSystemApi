@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:min-log="http://www.mulesoft.org/schema/mule/min-log" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/min-log http://www.mulesoft.org/schema/mule/min-log/current/mule-min-log.xsd">
+	
+	<flow name="get-routes-transnational-flow" doc:id="f77cc49c-ec93-4702-89b5-f19fcac74328" >
+		<ee:transform doc:name="Transform Message" doc:id="50d78d59-9d22-4056-9c69-ee18cbad99e0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://www.example.org/Bookings/
+---
+{
+	ns0#getRoutes: {
+		in: ""
+
+	}
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<min-log:info doc:name="Info" doc:id="afd439b9-e429-4236-a823-2dbef633fa55" msg="Before calling Web Service and passing empty input xml" transactionProperties="#[vars.loggingProperties]"/>
+		<wsc:consume doc:name="transNationalWebService" doc:id="4f3576fb-7af1-4bde-aaab-8a9f4b3a4aed" config-ref="Web_Service_Consumer_Config" operation="getRoutes">
+			<reconnect frequency="3000" count="5" />
+		</wsc:consume>
+		<min-log:info doc:name="Info" doc:id="d71ee780-080b-4eca-a8b4-4c833c5f495a" msg="after Web service" transactionProperties="#[vars.loggingProperties]"/>
+		<ee:transform doc:name="Transform Message" doc:id="6847692d-fbf8-480e-a8bf-a2abd1eefaa2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+ns ns0 http://www.example.org/Bookings/
+var response = read(payload.body.ns0#getRoutesResponse.out, "application/xml")
+---
+response.ROUTELIST.*ROUTEINFO map (value,index) ->
+ {
+ 	originLocation: {
+ 		locationCode: value.ORIGIN
+ 	},
+ 	destinationLocation: {
+ 		locationCode: value.DESTINATION
+ 	}
+ }]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
